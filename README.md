@@ -16,9 +16,7 @@ Check also original MSI specifications by ESA (https://sentinel.esa.int/document
 Data can be browsed here: http://sentinel-s2-l1c.s3-website.eu-central-1.amazonaws.com/
 
 ## Tile locations
-Each file is its own object in Amazon S3. The data are organised per tiles using the Military grid system. The latest KML file describing available tiles is available:
--ESA Site: https://sentinels.copernicus.eu/web/sentinel/missions/sentinel-2/data-products
--Direct link: https://sentinels.copernicus.eu/documents/247904/1955685/S2A_OPER_GIP_TILPAR_MPC__20151209T095117_V20150622T000000_21000101T000000_B00.kml/ec05e22c-a2bc-4a13-9e84-02d5257b09a8
+Each file is its own object in Amazon S3. The data are organised per tiles using the Military grid system. The latest KML file describing available tiles is available is ESA site (https://sentinels.copernicus.eu/web/sentinel/missions/sentinel-2/data-products), or via direct link (https://sentinels.copernicus.eu/documents/247904/1955685/S2A_OPER_GIP_TILPAR_MPC__20151209T095117_V20150622T000000_21000101T000000_B00.kml/ec05e22c-a2bc-4a13-9e84-02d5257b09a8)
 
 
 # Running

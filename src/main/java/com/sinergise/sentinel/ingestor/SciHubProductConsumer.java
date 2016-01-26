@@ -34,6 +34,8 @@ public class SciHubProductConsumer extends AbstractAsyncResponseConsumer<File> {
 	private static final Logger logger = LoggerFactory.getLogger(SciHubProductConsumer.class);
 	
 	public static final long TAIL_DISCARD_BYTES=1024*1024*1; // last MB
+	private static final long DOWNLOAD_STUCK_CHECK_INTERVAL_MS = 60*1000; // 60 seconds
+	private static final long DOWNLOAD_STUCK_CHECK_MINIMUM_DOWNLOADED_BYTES = 1024*100; // 100kb
 	
 	private final File file;
 	private RandomAccessFile accessfile;
@@ -89,10 +91,10 @@ public class SciHubProductConsumer extends AbstractAsyncResponseConsumer<File> {
 	
 	public boolean isStuck() {
 		boolean stuck = false;
-		if ((System.currentTimeMillis()-downloadedBytesMarkerTs)<60*1000) {
+		if ((System.currentTimeMillis()-downloadedBytesMarkerTs)< DOWNLOAD_STUCK_CHECK_INTERVAL_MS) {
 			return false;
 		}
-		if ((downloadedBytes - downloadedBytesMarker)<100) {
+		if ((downloadedBytes - downloadedBytesMarker) < DOWNLOAD_STUCK_CHECK_MINIMUM_DOWNLOADED_BYTES) {
 			stuck = true;
 		}
 		downloadedBytesMarker = downloadedBytes;

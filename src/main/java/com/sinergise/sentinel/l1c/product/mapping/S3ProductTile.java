@@ -25,39 +25,44 @@ public class S3ProductTile {
 	private File[] imageFiles;
 	private File[] qiFiles;
 	private File[] auxFiles;
+	private File tileInfoFile;
 	
 	private int utmZone;
 	private String latitudeBand;
 	private String gridSquare;
-	
-	private Date sensingTime;
-	
+		
 	private S3ProductDatastrip datastrip;
-
+	private SciHubProductTile sciHubTile;
+	
+	private S3Product s3Product;
+	
 	public S3ProductTile(S3Product s3Product, SciHubProductTile sciHubTile, File s3TilesBase, TileSequenceProvider tileSequenceProvider) {
-
+		this.s3Product = s3Product;
+		this.sciHubTile = sciHubTile;
+		
 		Matcher m = GRANULE_MGRS_PATTERN.matcher(sciHubTile.getTileName());
 		if (!m.matches()) {
 			throw new IllegalStateException("Tile " + sciHubTile.getMetadataFile() + " is invalid!");
 		}
 
-		datastrip = s3Product.getDatastrip(sciHubTile.getDatastripId());
+		datastrip = s3Product.getDatastrip(sciHubTile.getTileMetadata().getDatastripId());
 		
 		utmZone = Integer.parseInt(m.group(1));
 		latitudeBand = m.group(2);
 		gridSquare = m.group(3);
 		
-		sensingTime = sciHubTile.getSensingTime();
+				
 		
 		File baseBeforeSequence = new File(s3TilesBase, utmZone + File.separator + latitudeBand + File.separator+ gridSquare + File.separator
-				+ L1CProductConstants.S3_BUCKET_DATE_FORMAT.format(sensingTime));
+				+ L1CProductConstants.S3_BUCKET_DATE_FORMAT.format(getSensingTime()));
 		
-		int tileSequence = tileSequenceProvider.getSequence(L1CProductConstants.getS3ObjectName(baseBeforeSequence), sciHubTile.getTileId());
+		int tileSequence = tileSequenceProvider.getSequence(L1CProductConstants.getS3ObjectName(baseBeforeSequence), sciHubTile.getTileMetadata().getTileId());
 		
 		
 		baseDirectory = new File(s3TilesBase, utmZone + File.separator + latitudeBand + File.separator+ gridSquare + File.separator
-				+ L1CProductConstants.S3_BUCKET_DATE_FORMAT.format(sensingTime) + File.separator + tileSequence);
+				+ L1CProductConstants.S3_BUCKET_DATE_FORMAT.format(getSensingTime()) + File.separator + tileSequence);
 
+		tileInfoFile = new File(baseDirectory, "tileInfo.json");
 		metadataFile = new File(baseDirectory, "metadata.xml");
 		previewFile = new File(baseDirectory, "preview.jp2");
 
@@ -111,7 +116,7 @@ public class S3ProductTile {
 	}
 	
 	public Date getSensingTime() {
-		return sensingTime;
+		return sciHubTile.getTileMetadata().getSensingTime();
 	}
 	
 	public File getMetadataFile() {
@@ -133,6 +138,10 @@ public class S3ProductTile {
 	public File getPreviewFile() {
 		return previewFile;
 	}
+	
+	public File getTileInfoFile() {
+		return tileInfoFile;
+	}
 
 	public File getBaseDirectory() {
 		return baseDirectory;
@@ -141,4 +150,8 @@ public class S3ProductTile {
 	public S3ProductDatastrip getDatastrip() {
 		return datastrip;
 	}
+
+	public S3Product getS3Product() {
+		return s3Product;
+	}	
 }

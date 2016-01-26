@@ -29,6 +29,11 @@ public class SciHubEntry {
 	private Date ingestionDate;
 	private static final Pattern NAME_DATES_PATTERN = Pattern.compile("^.*_V([0-9T]{15})_([0-9T]{15})$");
 	
+	public SciHubEntry(String id, String name) {
+		this.name=name;
+		this.id=id;
+	}
+	
 	public SciHubEntry(OpenSearchEntry osEntryDto) {
 		this.id = osEntryDto.getId();
 		this.name = osEntryDto.getTitle();

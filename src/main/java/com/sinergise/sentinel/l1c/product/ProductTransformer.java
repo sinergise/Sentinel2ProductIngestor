@@ -16,7 +16,9 @@ import org.slf4j.LoggerFactory;
 import com.amazonaws.services.s3.AmazonS3;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.sinergise.sentinel.l1c.product.info.ExtendedTileInfo;
 import com.sinergise.sentinel.l1c.product.info.ProductInfo;
+import com.sinergise.sentinel.l1c.product.info.TileInfo;
 import com.sinergise.sentinel.l1c.product.mapping.S3Product;
 import com.sinergise.sentinel.l1c.product.mapping.S3ProductDatastrip;
 import com.sinergise.sentinel.l1c.product.mapping.S3ProductTile;
@@ -143,7 +145,8 @@ public class ProductTransformer extends RecursiveTask<Boolean> {
 			s3ProductBase = L1CProductConstants.createProductBasePath(basePath);
 			s3TilesBase = new File(basePath, "tiles");
 			S3Product s3Product = new S3Product(sciHubProduct, s3ProductBase, s3TilesBase, tileSequenceProvider);
-	
+			productInfo = new ProductInfo(s3Product);
+
 			for (int i = 0; i < sciHubProduct.getTiles().size(); i++) {
 				uploadTile(sciHubProduct.getTiles().get(i), s3Product.getTiles().get(i));
 			}
@@ -157,7 +160,6 @@ public class ProductTransformer extends RecursiveTask<Boolean> {
 			uploadToS3(sciHubProduct.getPreviewFile(), s3Product.getPreviewFile());
 
 			if (joinTasks()) {
-				productInfo = new ProductInfo(s3Product);
 				productInfoFile = createProductInfoFile(productInfo);
 				for (int i = 0; i < sciHubProduct.getTiles().size(); i++) {
 					uploadToS3(productInfoFile, new File(s3Product.getTiles().get(i).getBaseDirectory(), PRODUCT_INFO_FILENAME));
@@ -196,6 +198,7 @@ public class ProductTransformer extends RecursiveTask<Boolean> {
 	}
 
 	private void uploadTile(SciHubProductTile sciHubTile, S3ProductTile s3Tile) {
+			
 		uploadToS3(sciHubTile.getMetadataFile(), s3Tile.getMetadataFile());
 		uploadToS3(sciHubTile.getPreviewFile(), s3Tile.getPreviewFile());
 		
@@ -208,6 +211,17 @@ public class ProductTransformer extends RecursiveTask<Boolean> {
 		for (int i = 0; i < sciHubTile.getAuxFiles().length; i++) {
 			uploadToS3(sciHubTile.getAuxFiles()[i], s3Tile.getAuxFiles()[i]);
 		}
+		
+		try {
+			File tileInfoFile = new File(sciHubTile.getTileDirectory(), "tileInfo.json");
+			try (PrintWriter out = new PrintWriter(tileInfoFile)) {
+				objectMapper.writeValue(out, new ExtendedTileInfo(new TileInfo(s3Tile), productInfo, sciHubTile.getTileMetadata()));
+			}
+			uploadToS3(tileInfoFile, s3Tile.getTileInfoFile());
+		} catch (Exception ex) {
+			logger.error("Failed to create tileInfo.json!", ex);  // we continue anyway..
+		}
+
 	}
 
 }

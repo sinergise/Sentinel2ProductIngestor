@@ -32,6 +32,7 @@ import com.amazonaws.services.sns.AmazonSNSClient;
 import com.sinergise.sentinel.ingestor.ProductIngestorSettings.SciHubCredentials;
 import com.sinergise.sentinel.l1c.product.L1CProductConstants;
 import com.sinergise.sentinel.l1c.product.mapping.TileSequenceProvider;
+import com.sinergise.sentinel.l1c.product.mapping.TileSequenceProviderAmazonS3;
 import com.sinergise.sentinel.scihub.SciHubEntry;
 
 public class ProductIngestor {
@@ -91,7 +92,7 @@ public class ProductIngestor {
 		snsClient.setRegion(Region.getRegion(Regions.EU_WEST_1));
 
 	    
-	    tileSequenceProvider = new TileSequenceProvider(s3, settings.getS3BucketName());
+	    tileSequenceProvider = new TileSequenceProviderAmazonS3(s3, settings.getS3BucketName());
 	    
 	    TransferManagerConfiguration tmConfig = new TransferManagerConfiguration();
 	    tmConfig.setMinimumUploadPartSize(50 * MB);

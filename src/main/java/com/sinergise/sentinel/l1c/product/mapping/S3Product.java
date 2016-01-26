@@ -10,6 +10,8 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import com.sinergise.sentinel.l1c.product.L1CProductConstants;
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.Polygon;
 
 public class S3Product {
 
@@ -30,7 +32,7 @@ public class S3Product {
 	
 	private Date sciHubIngestionTs;
 	private Date timestamp;
-	
+		
 	public S3Product(SciHubProduct sciHubProduct, File s3ProductBase, File s3TilesBase, TileSequenceProvider tileSequenceProvider) {
 		this.name = sciHubProduct.getName();
 		this.id = sciHubProduct.getProductId();

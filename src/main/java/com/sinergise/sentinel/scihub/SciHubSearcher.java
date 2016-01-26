@@ -11,12 +11,12 @@ import java.util.Date;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
-import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.nio.client.CloseableHttpAsyncClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -27,6 +27,8 @@ import com.sinergise.sentinel.scihub.opensearch.OpenSearchResult;
 
 public class SciHubSearcher {
 
+	private static final Logger logger = LoggerFactory.getLogger(SciHubSearcher.class);
+	
 	private static final SimpleDateFormat SOLR_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
 
 	private URL apiUrl;
@@ -80,6 +82,7 @@ public class SciHubSearcher {
 		searchBuffer.append("&q=").append(URLEncoder.encode(query.toString(), "UTF-8"));
 		searchBuffer.append("&start=").append(offset);
 		searchBuffer.append("&rows=").append(count);
+		logger.trace("Search URL {}", searchBuffer.toString());
 		return search(searchBuffer.toString());
 	}
 	

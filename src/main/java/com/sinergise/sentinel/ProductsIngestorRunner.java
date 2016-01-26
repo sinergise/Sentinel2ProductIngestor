@@ -2,6 +2,10 @@ package com.sinergise.sentinel;
 
 import java.net.URL;
 
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.DefaultParser;
+import org.apache.commons.cli.Options;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.CredentialsProvider;
@@ -25,6 +29,22 @@ public class ProductsIngestorRunner {
 	public static final Logger logger = LoggerFactory.getLogger(ProductsIngestorRunner.class);
 	
 	public static void main(String[] args) throws Exception {
+		
+		Options options = new Options();
+		options.addOption("f", "from", true, "from date (start of day)");
+		options.addOption("t", "to", true, "to date (exclusive)");
+		
+		CommandLineParser parser = new DefaultParser();
+		CommandLine cmd = parser.parse( options, args);
+		
+		DateTime fixedFromDate = null;
+		DateTime fixedToDate =  null;
+		if (cmd.hasOption("f") && cmd.hasOption("t")) {
+			fixedFromDate = DateTime.parse(cmd.getOptionValue("f", "yyyy-MM-dd")).withTimeAtStartOfDay();
+			fixedToDate = DateTime.parse(cmd.getOptionValue("t", "yyyy-MM-dd")).withTimeAtStartOfDay();
+		}
+
+		
 		SevenZip.initSevenZipFromPlatformJAR();
 
 		final ProductIngestor ingestor = new ProductIngestor();
@@ -60,8 +80,8 @@ public class ProductsIngestorRunner {
 		
 		while (ingestor.isRunning()) {
 			try {
-				DateTime from = new DateTime().withTimeAtStartOfDay().minusDays(2);
-				DateTime to = new DateTime().withTimeAtStartOfDay().plusDays(1);
+				DateTime from = fixedFromDate != null ? fixedFromDate : new DateTime().withTimeAtStartOfDay().minusDays(5);
+				DateTime to = fixedToDate != null ? fixedToDate : new DateTime().withTimeAtStartOfDay().plusDays(1);
 				
 				logger.info("Executing search between {} and {}!", from, to);
 				OpenSearchResult osr = shs.search(from.toDate(), to.toDate(), null, 0, 1000);

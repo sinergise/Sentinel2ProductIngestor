@@ -4,6 +4,7 @@ import java.util.Date;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.sinergise.sentinel.l1c.product.L1CProductConstants;
+import com.sinergise.sentinel.l1c.product.TileMetadata;
 import com.sinergise.sentinel.l1c.product.mapping.S3ProductTile;
 
 public class TileInfo {

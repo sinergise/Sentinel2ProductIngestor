@@ -11,6 +11,8 @@ import org.geojson.Crs;
 import org.geojson.LngLatAlt;
 import org.geojson.jackson.CrsType;
 
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
 
@@ -24,6 +26,18 @@ public class GeoJsonUtils {
 		crs.setProperties(Collections.unmodifiableMap(Stream.of(new SimpleEntry<>("name", crsURN))
 				.collect(Collectors.toMap(Entry::getKey, Entry::getValue))));
 		return crs;
+	}
+
+	public static org.geojson.GeoJsonObject toGeoJson(Geometry jtsGeometry) {
+		if (jtsGeometry instanceof MultiPolygon) {
+			return toGeoJson((MultiPolygon)jtsGeometry);
+		} else if (jtsGeometry instanceof Polygon) {
+			return toGeoJson((Polygon)jtsGeometry);
+		} else	if (jtsGeometry instanceof Point) {
+			return toGeoJson((Point)jtsGeometry);
+		}
+		throw new IllegalArgumentException("Unsupportedd type: "+jtsGeometry.getGeometryType());
+		
 	}
 
 	public static org.geojson.Point toGeoJson(Point jtsPoint) {
@@ -42,5 +56,17 @@ public class GeoJsonUtils {
 				.map(p -> new LngLatAlt(p.x, p.y)).collect(Collectors.toList()));
 		geoJsonPoly.setCrs(createCrsForEpsgCode(jtsPolygon.getSRID()));
 		return geoJsonPoly;
+	}
+	
+	public static org.geojson.MultiPolygon toGeoJson (MultiPolygon jtsPolygon) {
+		if (jtsPolygon == null)
+			return null;
+
+		org.geojson.MultiPolygon multiPolygon = new org.geojson.MultiPolygon();
+		for (int i=0;i<jtsPolygon.getNumGeometries();i++) {
+			multiPolygon.add(toGeoJson((Polygon)jtsPolygon.getGeometryN(i)));
+		}
+		multiPolygon.setCrs(createCrsForEpsgCode(jtsPolygon.getSRID()));
+		return multiPolygon;
 	}
 }

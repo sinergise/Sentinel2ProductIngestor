@@ -13,6 +13,7 @@ import org.w3c.dom.Document;
 
 import com.sinergise.sentinel.l1c.product.mapping.SciHubProduct;
 import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
@@ -26,7 +27,7 @@ public class TileMetadata {
 	
 	private int epsgCode;
 	
-	private Polygon tileDataGeometry;
+	private Geometry tileDataGeometry;
 	private Polygon tileGeometry;
 	private Point tileOrigin;
 	
@@ -97,11 +98,11 @@ public class TileMetadata {
 		return tileGeometry;
 	}
 
-	public void setTileDataGeometry(Polygon tileDataGeometry) {
+	public void setTileDataGeometry(Geometry tileDataGeometry) {
 		this.tileDataGeometry = tileDataGeometry;
 	}
 	
-	public Polygon getTileDataGeometry() {
+	public Geometry getTileDataGeometry() {
 		return tileDataGeometry;
 	}
 

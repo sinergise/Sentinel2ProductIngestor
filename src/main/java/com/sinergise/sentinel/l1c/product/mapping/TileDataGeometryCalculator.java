@@ -25,6 +25,7 @@ import org.xml.sax.SAXException;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Polygon;
 import com.vividsolutions.jts.geom.PrecisionModel;
 import com.vividsolutions.jts.operation.buffer.BufferParameters;
@@ -77,20 +78,20 @@ public class TileDataGeometryCalculator {
 		}
 	}
 	
-	public Polygon getCoverage() throws Exception {
+	public Geometry getCoverage() throws Exception {
 		return getCoverage(BUFFER_SIZE);
 	}
 	
-	public Polygon getCoverage(double bufferSize) throws Exception {
-		Geometry geom =  bufferSize == 0 ? coveragesIntersection : coveragesIntersection == null ? null : shrink(coveragesIntersection, bufferSize);
-		if (geom instanceof Polygon) {
-			return (Polygon) geom;
-
+	public Geometry getCoverage(double bufferSize) throws Exception {
+		Geometry geom =   bufferSize == 0 ? coveragesIntersection : coveragesIntersection == null ? null : shrink(coveragesIntersection, bufferSize);
+		if (!(geom instanceof Polygon || geom instanceof MultiPolygon)) {
+			logger.error("The result of buffering should be a polygon or multipolygon, its {} instead.",
+					geom.getGeometryType());
+			System.out.println(geom.toText());
+			throw new Exception("The result of buffering should be a polygon or multipolygon, its "
+					+ geom.getGeometryType() + " instead.");
 		}
-		logger.error("The result of buffering should be a simple polygon, its {} instead.",
-				geom.getGeometryType());
-		throw new Exception("The result of buffering should be a simple polygon, its "
-				+ geom.getGeometryType() + " instead.");
+		return geom;
 	}
 	
 	

@@ -1,5 +1,6 @@
 package com.sinergise.sentinel.l1c.product.info;
 
+import org.geojson.GeoJsonObject;
 import org.geojson.Point;
 import org.geojson.Polygon;
 
@@ -15,7 +16,7 @@ public class ExtendedTileInfo extends TileInfo {
 	private Polygon tileGeometry;
 
 	@JsonProperty("tileDataGeometry")
-	private Polygon tileDataGeometry;
+	private GeoJsonObject tileDataGeometry;
 	
 	@JsonProperty("tileOrigin")
 	private Point tileOrigin;
@@ -56,11 +57,11 @@ public class ExtendedTileInfo extends TileInfo {
 		super(tileInfo);
 	}
 
-	public void setTileDataGeometry(Polygon tileDataGeometry) {
+	public void setTileDataGeometry(GeoJsonObject tileDataGeometry) {
 		this.tileDataGeometry = tileDataGeometry;
 	}
 
-	public Polygon getTileDataGeometry() {
+	public GeoJsonObject getTileDataGeometry() {
 		return tileDataGeometry;
 	}
 

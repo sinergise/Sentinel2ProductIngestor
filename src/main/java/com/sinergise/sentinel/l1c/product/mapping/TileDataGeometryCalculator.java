@@ -40,8 +40,8 @@ public class TileDataGeometryCalculator {
 	private static final int ENDCAP_STYLE = BufferParameters.CAP_FLAT;
 	private static final double SIMPLIFICATION_DISTANCE_TOLERANCE = 10; // m
 	
-	private static DocumentBuilder documentBuilder;
-	private static XPathExpression xpathExpression;
+	private DocumentBuilder documentBuilder;
+	private XPathExpression xpathExpression;
 	
 	private int epsgCode;
 	private Geometry coveragesIntersection = null;

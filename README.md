@@ -29,5 +29,13 @@ Prerequisites:
 	java -Dconfig=ingestor.properties com.sinergise.sentinel.ProductsIngestorRunner
 
 
+# Notification service for new products
+Notification service for new products: There is a public SNS topic that anyone can subscribe to for notifications of when a new Sentinel-2 product has been added to s3://sentinel-pds. It will only accept subscriptions via SQS or Lambda. The topic publishes a message when a new product is fully ingested to S3.
+
+	ARN: arn:aws:sns:eu-west-1:214830741341:NewSentinel2Product
+
+Prerequisites:
+
+
 # Relevant links
 Mailing list for discussion is at http://lists.osgeo.org/mailman/listinfo/sentinel-pds

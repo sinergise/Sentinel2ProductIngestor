@@ -30,11 +30,11 @@ Prerequisites:
 
 
 # Notification service for new products
-Notification service for new products: There is a public SNS topic that anyone can subscribe to for notifications of when a new Sentinel-2 product has been added to s3://sentinel-pds. It will only accept subscriptions via SQS or Lambda. The topic publishes a message when a new product is fully ingested to S3.
+There is a public SNS topic that anyone can subscribe to for notifications of when a new Sentinel-2 product has been added to s3://sentinel-pds. The topic publishes a message when a new product is fully ingested to S3.
 
 	ARN: arn:aws:sns:eu-west-1:214830741341:NewSentinel2Product
-
-Prerequisites:
+Find example of the message here:
+	https://github.com/sinergise/Sentinel2ProductIngestor/wiki/SNS-Topic-for-new-products
 
 
 # Relevant links

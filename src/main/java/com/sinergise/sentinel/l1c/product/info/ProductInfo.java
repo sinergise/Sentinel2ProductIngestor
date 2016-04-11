@@ -86,5 +86,9 @@ public class ProductInfo {
 	public List<TileInfo> getTiles() {
 		return tiles;
 	}
+	
+	public Date getSciHubIngestion() {
+		return sciHubIngestion;
+	}
 
 }

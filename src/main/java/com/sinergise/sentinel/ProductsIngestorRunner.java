@@ -1,5 +1,7 @@
 package com.sinergise.sentinel;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 
 import org.apache.commons.cli.CommandLine;
@@ -17,6 +19,7 @@ import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.amazonaws.services.s3.internal.Mimetypes;
 import com.sinergise.sentinel.ingestor.ProductIngestor;
 import com.sinergise.sentinel.ingestor.ProductIngestorSettings.SciHubCredentials;
 import com.sinergise.sentinel.scihub.SciHubEntry;
@@ -28,8 +31,18 @@ import net.sf.sevenzipjbinding.SevenZip;
 public class ProductsIngestorRunner {
 	public static final Logger logger = LoggerFactory.getLogger(ProductsIngestorRunner.class);
 	
+	
+	private static void loadMimeTypes() throws IOException {	
+		try (InputStream is = ProductsIngestorRunner.class.getResourceAsStream("/mime.types")) {
+			Mimetypes.getInstance().loadAndReplaceMimetypes(is);
+		} catch (Exception ex) {
+			logger.error("Failed to load mime.types file!",ex);
+			throw new RuntimeException("Failed to load mime.types!", ex);
+		}
+	}
+	
 	public static void main(String[] args) throws Exception {
-		
+		loadMimeTypes();
 		Options options = new Options();
 		options.addOption("f", "from", true, "from date (start of day)");
 		options.addOption("t", "to", true, "to date (exclusive)");

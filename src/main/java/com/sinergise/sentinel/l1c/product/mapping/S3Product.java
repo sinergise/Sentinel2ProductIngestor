@@ -10,8 +10,6 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import com.sinergise.sentinel.l1c.product.L1CProductConstants;
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Polygon;
 
 public class S3Product {
 

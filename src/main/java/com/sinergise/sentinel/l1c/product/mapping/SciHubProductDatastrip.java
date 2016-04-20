@@ -9,6 +9,8 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+import com.sinergise.sentinel.l1c.product.L1CProductConstants;
+
 public class SciHubProductDatastrip {
 	private File datastripDirectory;
 	private File metadataFile;
@@ -46,7 +48,7 @@ public class SciHubProductDatastrip {
 			Element elGeneralInfo = (Element) elUserProduct.getElementsByTagName("n1:General_Info").item(0);
 			Element elDatastripTimeInfo = (Element) elGeneralInfo.getElementsByTagName("Datastrip_Time_Info").item(0);
 			Element elDatastripSensingStart = (Element) elDatastripTimeInfo.getElementsByTagName("DATASTRIP_SENSING_START").item(0);
-			sensingStart = SciHubProduct.METADATA_XML_DATE_FORMAT.parse(elDatastripSensingStart.getFirstChild().getNodeValue());
+			sensingStart = L1CProductConstants.getMetadataXmlDateFormat().parse(elDatastripSensingStart.getFirstChild().getNodeValue());
 			
 		} catch (Exception ex) {
 			throw new RuntimeException("Failed to extract product timestamp!", ex);

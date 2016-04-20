@@ -2,7 +2,6 @@ package com.sinergise.sentinel.l1c.product.mapping;
 
 import java.io.File;
 import java.io.FileFilter;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -16,12 +15,11 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+import com.sinergise.sentinel.l1c.product.L1CProductConstants;
 import com.sinergise.sentinel.scihub.SciHubEntry;
 
 public class SciHubProduct {
 
-	public static final SimpleDateFormat FILE_DATE_FORMAT = new SimpleDateFormat("yyyyMMdd'T'HHmmss");
-	public static final SimpleDateFormat METADATA_XML_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
 	private File productBase;
 	private File metadataFile;
 	private File previewFile;
@@ -37,6 +35,7 @@ public class SciHubProduct {
 	private ArrayList<SciHubProductTile> productTiles = new ArrayList<>();
 	private Map<String, SciHubProductDatastrip> datastrips = new HashMap<>();
 
+	
 	public SciHubProduct(File productBase, SciHubEntry sciHubEntry) {
 		this.productBase = productBase;
 		this.productName = sciHubEntry.getName();
@@ -94,7 +93,7 @@ public class SciHubProduct {
 			Element elGeneralInfo = (Element) elUserProduct.getElementsByTagName("n1:General_Info").item(0);
 			Element elProductInfo = (Element) elGeneralInfo.getElementsByTagName("Product_Info").item(0);
 			Element elProductStopTime = (Element) elProductInfo.getElementsByTagName("PRODUCT_STOP_TIME").item(0);
-			productStopTime = METADATA_XML_DATE_FORMAT.parse(elProductStopTime.getFirstChild().getNodeValue());
+			productStopTime = L1CProductConstants.getMetadataXmlDateFormat().parse(elProductStopTime.getFirstChild().getNodeValue());
 			Element elDatatake = (Element) elProductInfo.getElementsByTagName("Datatake").item(0);
 			datatakeIdentifier =  elDatatake.getAttribute("datatakeIdentifier");
 		} catch (Exception ex) {

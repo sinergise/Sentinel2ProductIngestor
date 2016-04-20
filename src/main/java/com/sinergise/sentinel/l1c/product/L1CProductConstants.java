@@ -5,9 +5,21 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class L1CProductConstants {
-	public static SimpleDateFormat S3_BUCKET_DATE_FORMAT = new SimpleDateFormat(
-			"yyyy'" + File.separator + "'M'" + File.separator + "'d");
 
+	
+	public static SimpleDateFormat getS3BucketDateFormat() {
+		return  new SimpleDateFormat("yyyy'" + File.separator + "'M'" + File.separator + "'d");
+	}
+
+	public static SimpleDateFormat getMetadataXmlDateFormat() {
+		return new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+	}
+
+	public static SimpleDateFormat getFilenameDateFormat() {
+		return  new SimpleDateFormat("yyyyMMdd'T'HHmmss");
+	}
+	
+	
 	public static String getS3ObjectName(File file) {
 		String key = file.getPath().replace("\\", "/");
 		return key.startsWith("/") ? key.substring(1) : key;
@@ -22,7 +34,7 @@ public class L1CProductConstants {
 	}
 
 	public static File getProductBaseDirectory(File s3ProductBase, Date productTimestamp, String productName) {
-		String dateString = S3_BUCKET_DATE_FORMAT.format(productTimestamp);
+		String dateString = getS3BucketDateFormat().format(productTimestamp);
 		return new File(s3ProductBase, dateString + File.separator + productName);
 	}
 

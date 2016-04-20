@@ -11,7 +11,6 @@ import javax.xml.xpath.XPathFactory;
 
 import org.w3c.dom.Document;
 
-import com.sinergise.sentinel.l1c.product.mapping.SciHubProduct;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
@@ -44,7 +43,7 @@ public class TileMetadata {
 			
 			
 			datastripId = (String) xpath.compile("/Level-1C_Tile_ID/General_Info/DATASTRIP_ID").evaluate(doc, XPathConstants.STRING);
-			sensingTime = SciHubProduct.METADATA_XML_DATE_FORMAT.parse(
+			sensingTime = L1CProductConstants.getMetadataXmlDateFormat().parse(
 					(String) xpath.compile("/Level-1C_Tile_ID/General_Info/SENSING_TIME").evaluate(doc, XPathConstants.STRING));
 			
 			tileId = (String) xpath.compile("/Level-1C_Tile_ID/General_Info/TILE_ID").evaluate(doc, XPathConstants.STRING);

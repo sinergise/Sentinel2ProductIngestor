@@ -2,6 +2,7 @@ package com.sinergise.sentinel.scihub;
 
 import java.io.File;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -9,7 +10,7 @@ import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sinergise.sentinel.l1c.product.mapping.SciHubProduct;
+import com.sinergise.sentinel.l1c.product.L1CProductConstants;
 import com.sinergise.sentinel.scihub.opensearch.Link;
 import com.sinergise.sentinel.scihub.opensearch.OpenSearchEntry;
 
@@ -29,6 +30,7 @@ public class SciHubEntry {
 	private Date ingestionDate;
 	private static final Pattern NAME_DATES_PATTERN = Pattern.compile("^.*_V([0-9T]{15})_([0-9T]{15})$");
 	
+	
 	public SciHubEntry(String id, String name) {
 		this.name=name;
 		this.id=id;
@@ -44,9 +46,10 @@ public class SciHubEntry {
 			throw new IllegalStateException("Can't extract product times from name! "+name);
 		}
 		
+		SimpleDateFormat filenameDateFormat = L1CProductConstants.getFilenameDateFormat();
 		try {
-			productStartTime = SciHubProduct.FILE_DATE_FORMAT.parse(mDate.group(1));
-			productStopTime = SciHubProduct.FILE_DATE_FORMAT.parse(mDate.group(2));
+			productStartTime = filenameDateFormat.parse(mDate.group(1));
+			productStopTime = filenameDateFormat.parse(mDate.group(2));
 		} catch (ParseException ex) {
 			throw new IllegalStateException("Can't extract product times from name! ",ex);
 		}

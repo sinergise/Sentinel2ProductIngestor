@@ -1,6 +1,7 @@
 package com.sinergise.sentinel.l1c.product.mapping;
 
 import java.io.File;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -52,15 +53,16 @@ public class S3ProductTile {
 		gridSquare = m.group(3);
 		
 				
+		SimpleDateFormat s3BucketDateFormat = L1CProductConstants.getS3BucketDateFormat();
 		
 		File baseBeforeSequence = new File(s3TilesBase, utmZone + File.separator + latitudeBand + File.separator+ gridSquare + File.separator
-				+ L1CProductConstants.S3_BUCKET_DATE_FORMAT.format(getSensingTime()));
+				+ s3BucketDateFormat.format(getSensingTime()));
 		
 		int tileSequence = tileSequenceProvider.getSequence(L1CProductConstants.getS3ObjectName(baseBeforeSequence), sciHubTile.getTileMetadata().getTileId());
 		
 		
 		baseDirectory = new File(s3TilesBase, utmZone + File.separator + latitudeBand + File.separator+ gridSquare + File.separator
-				+ L1CProductConstants.S3_BUCKET_DATE_FORMAT.format(getSensingTime()) + File.separator + tileSequence);
+				+ s3BucketDateFormat.format(getSensingTime()) + File.separator + tileSequence);
 
 		tileInfoFile = new File(baseDirectory, "tileInfo.json");
 		metadataFile = new File(baseDirectory, "metadata.xml");

@@ -49,10 +49,10 @@ public class ProductIngestionTask implements Runnable {
 		File unpackedArchive = null;
 		try {
 			ArchiveExtractor extractor = new ArchiveExtractor(archiveFile, piSettings.getUnpackedProductsLocation());
-			logger.info("Extracting archive {}!", archiveFile);
+			logger.info("Extracting archive {}, product {}!", archiveFile, entry.getName());
 			long extStart = System.currentTimeMillis();
 			unpackedArchive = extractor.extract();
-			logger.info("Extracted {} in {} seconds.", archiveFile, ((System.currentTimeMillis()-extStart)/1000.0));					
+			logger.info("Extracted {} in {} seconds.", entry.getName(), ((System.currentTimeMillis()-extStart)/1000.0));					
 		} catch (Exception ex) {
 			logger.error("Error while unpacking archive file {}. Will retry download!", archiveFile, ex);
 			removeDirectorySilently(unpackedArchive);

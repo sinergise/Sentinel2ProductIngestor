@@ -159,6 +159,7 @@ public class ProductTransformer extends RecursiveTask<Boolean> {
 			uploadToS3(sciHubProduct.getManifestFile(), s3Product.getManifestFile());
 			uploadToS3(sciHubProduct.getPreviewFile(), s3Product.getPreviewFile());
 
+			logger.info("Waiting for {} upload to S3 to finish.", sciHubProduct);
 			if (joinTasks()) {
 				productInfoFile = createProductInfoFile(productInfo);
 				for (int i = 0; i < sciHubProduct.getTiles().size(); i++) {

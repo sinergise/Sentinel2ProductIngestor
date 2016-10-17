@@ -91,4 +91,8 @@ public class ProductInfo {
 		return sciHubIngestion;
 	}
 
+	public Date getTimestamp() {		
+		return timestamp;
+	}
+
 }

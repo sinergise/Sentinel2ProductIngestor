@@ -2,6 +2,7 @@ package com.sinergise.sentinel.l1c.product.mapping;
 
 import java.io.File;
 import java.io.FileFilter;
+import java.io.FilenameFilter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -45,8 +46,16 @@ public class SciHubProduct {
 	}
 
 	private void initialize() {
-		metadataFile = new File(productBase,
-				new String(productName).replaceFirst("_PRD_MSIL", "_MTD_SAFL") + ".xml");
+		File metadataFiles[] = productBase.listFiles(new FilenameFilter() {
+			@Override
+			public boolean accept(File dir, String name) {
+				return name.endsWith("xml") && name.contains("OPER_MTD_SAFL1C");
+			}
+		});
+		if (metadataFiles.length!=1) {
+			throw new RuntimeException("Couldn't find product metadata.xml file!");
+		}
+		metadataFile = metadataFiles[0];
 		previewFile = new File(productBase, new String(productName).replaceFirst("_PRD_", "_BWI_") + ".png");
 		manifestFile = new File(productBase, "manifest.safe");
 		inspireFile = new File(productBase, "INSPIRE.xml");

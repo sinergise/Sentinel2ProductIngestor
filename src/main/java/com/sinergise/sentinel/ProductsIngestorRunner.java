@@ -88,7 +88,7 @@ public class ProductsIngestorRunner {
 				sciHubCredentials.getPassword());
 
 		SciHubSearcher shs = new SciHubSearcher(
-				new URL(ingestor.getSettings().getSciHubBaseUrl()+"/dhus/search"), 
+				new URL(ingestor.getSettings().getSciHubBaseUrl()+"/apihub/search"), 
 				hc);
 		
 		while (ingestor.isRunning()) {

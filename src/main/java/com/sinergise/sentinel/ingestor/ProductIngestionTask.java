@@ -86,8 +86,7 @@ public class ProductIngestionTask implements Runnable {
 	   		for (int i=0;i<50;i++) { // try 50 times then give up
 	   			logger.info("Uploading zip archive file {} take #{}",entry.getName(), i);
 		   		Upload upload = ingestor.getS3TransferManager()
-		   				.upload(piSettings.getS3BucketName(),
-		   						"zips/"+entry.getName()+".zip", archiveFile);
+		   				.upload(piSettings.getS3ZipBucketName(), entry.getName()+".zip", archiveFile);
 		   		try {
 		        	upload.waitForCompletion();
 		        	ingestor.sciHubEntryIngested(entry);

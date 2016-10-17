@@ -18,6 +18,7 @@ public class ProductIngestorSettings {
 	private File localDownloadedProductsLocation;
 	private File localUnpackedProductsLocation;
 	private String s3BucketName = "sentinel-pds-test";
+	private String s3ZipBucketName = "sentinel-pds-test-zips";
 
 	private long localDownloadedProductsStorageCleanupSizeThreshold;
 	private double localDownloadedProductsStorageCleanupPercentage;
@@ -80,6 +81,7 @@ public class ProductIngestorSettings {
 		productProcessorThreads = Integer.parseInt(settings.getProperty("ingestor.productprocessor.threads", "2"));
 		
 		s3BucketName = settings.getProperty("ingestor.s3.bucket_name", s3BucketName);
+		s3ZipBucketName = 	settings.getProperty("ingestor.s3.zip_bucket_name", s3ZipBucketName);
 		
 		sciHubBaseUrl = settings.getProperty("ingestor.sciHub.baseUrl", sciHubBaseUrl);
 		
@@ -126,6 +128,10 @@ public class ProductIngestorSettings {
 
 	public String getS3BucketName() {
 		return s3BucketName;
+	}
+	
+	public String getS3ZipBucketName() {
+		return s3ZipBucketName;
 	}
 
 	public String getSciHubBaseUrl() {

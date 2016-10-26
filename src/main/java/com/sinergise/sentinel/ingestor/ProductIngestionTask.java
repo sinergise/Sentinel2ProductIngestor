@@ -60,7 +60,8 @@ public class ProductIngestionTask implements Runnable {
 			return;
 		}
 		
-	 	SciHubProduct p = new SciHubProduct(unpackedArchive, entry);
+	 	//SciHubProduct p = new SciHubProduct(unpackedArchive, entry);
+		SciHubProduct p = null;
 	   	ProductTransformer ul = new ProductTransformer(p, piSettings.getS3ProductPathPrefix(),
 	   				ingestor.getS3Client(),
 	   				piSettings.getS3BucketName(),

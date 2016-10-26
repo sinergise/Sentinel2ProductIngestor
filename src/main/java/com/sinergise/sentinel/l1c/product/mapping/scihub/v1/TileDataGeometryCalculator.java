@@ -1,5 +1,5 @@
 
-package com.sinergise.sentinel.l1c.product.mapping;
+package com.sinergise.sentinel.l1c.product.mapping.scihub.v1;
 
 import java.io.IOException;
 import java.io.InputStream;

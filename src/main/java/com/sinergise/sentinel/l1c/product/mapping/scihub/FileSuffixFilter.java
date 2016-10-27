@@ -1,4 +1,4 @@
-package com.sinergise.sentinel.l1c.product.mapping.scihub.v1;
+package com.sinergise.sentinel.l1c.product.mapping.scihub;
 
 import java.io.File;
 import java.io.FileFilter;

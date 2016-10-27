@@ -11,7 +11,7 @@ import com.amazonaws.services.s3.transfer.Upload;
 import com.amazonaws.services.sns.model.PublishRequest;
 import com.sinergise.sentinel.l1c.product.ProductTransformer;
 import com.sinergise.sentinel.l1c.product.info.ProductInfo;
-import com.sinergise.sentinel.l1c.product.mapping.SciHubProduct;
+import com.sinergise.sentinel.l1c.product.mapping.scihub.SciHubProductFactory;
 import com.sinergise.sentinel.scihub.SciHubEntry;
 import com.sinergise.sentinel.util.ArchiveExtractor;
 import com.sinergise.sentinel.util.FileUtils;
@@ -60,9 +60,9 @@ public class ProductIngestionTask implements Runnable {
 			return;
 		}
 		
-	 	//SciHubProduct p = new SciHubProduct(unpackedArchive, entry);
-		SciHubProduct p = null;
-	   	ProductTransformer ul = new ProductTransformer(p, piSettings.getS3ProductPathPrefix(),
+	   	ProductTransformer ul = new ProductTransformer(
+	   				SciHubProductFactory.loadProduct(unpackedArchive, entry),
+	   				piSettings.getS3ProductPathPrefix(),
 	   				ingestor.getS3Client(),
 	   				piSettings.getS3BucketName(),
 	   				ingestor.getTileSequenceProvider());

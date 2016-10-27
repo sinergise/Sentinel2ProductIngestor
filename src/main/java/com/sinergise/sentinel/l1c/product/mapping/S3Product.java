@@ -10,6 +10,9 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import com.sinergise.sentinel.l1c.product.L1CProductConstants;
+import com.sinergise.sentinel.l1c.product.mapping.scihub.AbstractSciHubProduct;
+import com.sinergise.sentinel.l1c.product.mapping.scihub.AbstractSciHubProductDatastrip;
+import com.sinergise.sentinel.l1c.product.mapping.scihub.AbstractSciHubProductTile;
 
 public class S3Product {
 
@@ -31,7 +34,7 @@ public class S3Product {
 	private Date sciHubIngestionTs;
 	private Date timestamp;
 		
-	public S3Product(SciHubProduct sciHubProduct, File s3ProductBase, File s3TilesBase, TileSequenceProvider tileSequenceProvider) {
+	public S3Product(AbstractSciHubProduct sciHubProduct, File s3ProductBase, File s3TilesBase, TileSequenceProvider tileSequenceProvider) {
 		this.name = sciHubProduct.getName();
 		this.id = sciHubProduct.getProductId();
 		this.sciHubIngestionTs = sciHubProduct.getIngestionDate();
@@ -47,14 +50,14 @@ public class S3Product {
 		
 		
 		
-		List<SciHubProductDatastrip> sciHubDataStrips = sciHubProduct.getDatastrips();
+		List<AbstractSciHubProductDatastrip> sciHubDataStrips = sciHubProduct.getDatastrips();
 		dataStripMap = IntStream.range(0, sciHubDataStrips.size())
 							.mapToObj(i->new S3ProductDatastrip(sciHubDataStrips.get(i), baseDirectory, i))
 							.collect(Collectors.toMap(S3ProductDatastrip::getId, Function.identity()));
 				
 		
 		tiles = new ArrayList<>();
-		for (SciHubProductTile sciHubTile:sciHubProduct.getTiles()) {
+		for (AbstractSciHubProductTile sciHubTile:sciHubProduct.getTiles()) {
 			tiles.add(new S3ProductTile(this, sciHubTile, s3TilesBase, tileSequenceProvider));
 		}
 	}

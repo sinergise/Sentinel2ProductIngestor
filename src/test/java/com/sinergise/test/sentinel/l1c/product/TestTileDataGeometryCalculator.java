@@ -6,7 +6,7 @@ import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
 
-import com.sinergise.sentinel.l1c.product.mapping.scihub.v1.TileDataGeometryCalculator;
+import com.sinergise.sentinel.l1c.product.mapping.scihub.TileDataGeometryCalculator;
 
 public class TestTileDataGeometryCalculator {
 	private static final List<String> bandNames = Arrays.asList(

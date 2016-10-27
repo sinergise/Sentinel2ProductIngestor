@@ -97,7 +97,7 @@ public class ProductsIngestorRunner {
 				DateTime to = fixedToDate != null ? fixedToDate : new DateTime().withTimeAtStartOfDay().plusDays(1);
 				
 				logger.info("Executing search between {} and {}!", from, to);
-				OpenSearchResult osr = shs.search(from.toDate(), to.toDate(), null, 0, 1000);
+				OpenSearchResult osr = shs.search(from.toDate(), to.toDate(), null, 0, 100);
 				while (osr != null) {
 					osr.getFeed().getEntries().forEach(e -> ingestor.addEntry(new SciHubEntry(e)));
 					osr = shs.next(osr);

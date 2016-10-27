@@ -32,51 +32,7 @@ public class TileMetadata {
 	
 	private double cloudyPixelsPercentage;
 	
-	public TileMetadata(InputStream is) throws Exception {
-			DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-			DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-			Document doc = dBuilder.parse(is);
-
-			XPathFactory xPathfactory = XPathFactory.newInstance();
-			XPath xpath = xPathfactory.newXPath();
-			doc.getDocumentElement().normalize();
-			
-			
-			datastripId = (String) xpath.compile("/Level-1C_Tile_ID/General_Info/DATASTRIP_ID").evaluate(doc, XPathConstants.STRING);
-			sensingTime = L1CProductConstants.getMetadataXmlDateFormat().parse(
-					(String) xpath.compile("/Level-1C_Tile_ID/General_Info/SENSING_TIME").evaluate(doc, XPathConstants.STRING));
-			
-			tileId = (String) xpath.compile("/Level-1C_Tile_ID/General_Info/TILE_ID").evaluate(doc, XPathConstants.STRING);
-			
-			
-			String epsgCodeString = (String) xpath.compile("/Level-1C_Tile_ID/Geometric_Info/Tile_Geocoding/HORIZONTAL_CS_CODE").evaluate(doc, XPathConstants.STRING);
-			epsgCode = Integer.parseInt(epsgCodeString.substring("EPSG:".length()));
-			
-			Double ulx = (Double) xpath.compile("/Level-1C_Tile_ID/Geometric_Info/Tile_Geocoding/Geoposition[@resolution='10']/ULX").evaluate(doc, XPathConstants.NUMBER);
-			Double uly = (Double) xpath.compile("/Level-1C_Tile_ID/Geometric_Info/Tile_Geocoding/Geoposition[@resolution='10']/ULY").evaluate(doc, XPathConstants.NUMBER);
-			Double width = (Double) xpath.compile("/Level-1C_Tile_ID/Geometric_Info/Tile_Geocoding/Size[@resolution='10']/NCOLS").evaluate(doc, XPathConstants.NUMBER);
-			Double height = (Double) xpath.compile("/Level-1C_Tile_ID/Geometric_Info/Tile_Geocoding/Size[@resolution='10']/NROWS").evaluate(doc, XPathConstants.NUMBER);
-			Double xDim = (Double) xpath.compile("/Level-1C_Tile_ID/Geometric_Info/Tile_Geocoding/Geoposition[@resolution='10']/XDIM").evaluate(doc, XPathConstants.NUMBER);
-			Double yDim = (Double) xpath.compile("/Level-1C_Tile_ID/Geometric_Info/Tile_Geocoding/Geoposition[@resolution='10']/YDIM").evaluate(doc, XPathConstants.NUMBER);
-
-			GeometryFactory gf = new GeometryFactory(new PrecisionModel(), epsgCode); 		
-			tileOrigin = gf.createPoint(new Coordinate(ulx, uly));
-			
-			
-			tileGeometry =  gf.createPolygon(new Coordinate[] {
-					new Coordinate(ulx,uly),
-					new Coordinate(ulx+width*xDim, uly),
-					new Coordinate(ulx+width*xDim, uly+height*yDim),
-					new Coordinate(ulx, uly+height*yDim),
-					new Coordinate(ulx,uly)
-			});
-
-			cloudyPixelsPercentage= (Double) xpath.compile("/Level-1C_Tile_ID/Quality_Indicators_Info/Image_Content_QI/CLOUDY_PIXEL_PERCENTAGE").evaluate(doc, XPathConstants.NUMBER);
-
-	}
-	
-
-	
+		
 	public double getCloudyPixelsPercentage() {
 		return cloudyPixelsPercentage;
 	}
@@ -111,6 +67,34 @@ public class TileMetadata {
 
 	public Date getSensingTime() {
 		return sensingTime;
+	}
+
+	public void setDatastripId(String id) {
+		this.datastripId=id;
+	}
+	
+	public void setCloudyPixelsPercentage(double cloudyPixelsPercentage) {
+		this.cloudyPixelsPercentage = cloudyPixelsPercentage;
+	}
+	
+	public void setEpsgCode(int epsgCode) {
+		this.epsgCode = epsgCode;
+	}
+	
+	public void setSensingTime(Date sensingTime) {
+		this.sensingTime = sensingTime;
+	}
+	
+	public void setTileGeometry(Polygon tileGeometry) {
+		this.tileGeometry = tileGeometry;
+	}
+	
+	public void setTileId(String tileId) {
+		this.tileId = tileId;
+	}
+	
+	public void setTileOrigin(Point tileOrigin) {
+		this.tileOrigin = tileOrigin;
 	}
 	
 }

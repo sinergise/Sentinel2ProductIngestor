@@ -4,6 +4,7 @@ package com.sinergise.sentinel.l1c.product;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.nio.file.Files;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -22,10 +23,10 @@ import com.sinergise.sentinel.l1c.product.info.TileInfo;
 import com.sinergise.sentinel.l1c.product.mapping.S3Product;
 import com.sinergise.sentinel.l1c.product.mapping.S3ProductDatastrip;
 import com.sinergise.sentinel.l1c.product.mapping.S3ProductTile;
-import com.sinergise.sentinel.l1c.product.mapping.SciHubProduct;
-import com.sinergise.sentinel.l1c.product.mapping.SciHubProductDatastrip;
-import com.sinergise.sentinel.l1c.product.mapping.SciHubProductTile;
 import com.sinergise.sentinel.l1c.product.mapping.TileSequenceProvider;
+import com.sinergise.sentinel.l1c.product.mapping.scihub.AbstractSciHubProduct;
+import com.sinergise.sentinel.l1c.product.mapping.scihub.AbstractSciHubProductDatastrip;
+import com.sinergise.sentinel.l1c.product.mapping.scihub.AbstractSciHubProductTile;
 
 /**
  * Transforms SciHub product and stores it to S3
@@ -46,7 +47,7 @@ public class ProductTransformer extends RecursiveTask<Boolean> {
 	private File basePath;
 	private File s3ProductBase;
 	private File s3TilesBase;
-	private SciHubProduct sciHubProduct;
+	private AbstractSciHubProduct sciHubProduct;
 	private AmazonS3 s3;
 	private String bucketName;
 	private ObjectMapper objectMapper;
@@ -56,7 +57,7 @@ public class ProductTransformer extends RecursiveTask<Boolean> {
 	
 	private ArrayList<UploadToS3Task> forkedTasks = new ArrayList<>();
 	
-	public ProductTransformer(SciHubProduct product, File transformedProductBase, AmazonS3 s3, String bucketName, 
+	public ProductTransformer(AbstractSciHubProduct product, File transformedProductBase, AmazonS3 s3, String bucketName, 
 			TileSequenceProvider tileSequenceProvider) {
 		this.sciHubProduct = product;
 		this.s3=s3;
@@ -112,7 +113,10 @@ public class ProductTransformer extends RecursiveTask<Boolean> {
 				try {
 					logger.trace("Uploading {} to S3!", s3Key);
 					long start = System.currentTimeMillis();
-					s3.putObject(bucketName, s3Key, from);
+//					s3.putObject(bucketName, s3Key, from);
+					File target = new File("d:/temp/"+s3Key);
+					new File(target.getParent()).mkdirs();
+					Files.copy(from.toPath(), target.toPath());
 					double size = from.length()/(1024.0*1024.0);
 					logger.trace("{} uploaded to S3 @ {} mb/s!", s3Key, (size/((System.currentTimeMillis()-start)/1000.0)));
 					return true;
@@ -188,7 +192,7 @@ public class ProductTransformer extends RecursiveTask<Boolean> {
 		return productInfo;
 	}
 	
-	private void uploadDatastrip(SciHubProductDatastrip sciHubDatastrip, S3ProductDatastrip s3Datastrip) {
+	private void uploadDatastrip(AbstractSciHubProductDatastrip sciHubDatastrip, S3ProductDatastrip s3Datastrip) {
 		uploadToS3(sciHubDatastrip.getMetadataFile(), s3Datastrip.getMetadataFile());
 		
 		File[] sciHubQiFiles = sciHubDatastrip.getQiFiles();
@@ -198,7 +202,7 @@ public class ProductTransformer extends RecursiveTask<Boolean> {
 		}
 	}
 
-	private void uploadTile(SciHubProductTile sciHubTile, S3ProductTile s3Tile) {
+	private void uploadTile(AbstractSciHubProductTile sciHubTile, S3ProductTile s3Tile) {
 			
 		uploadToS3(sciHubTile.getMetadataFile(), s3Tile.getMetadataFile());
 		uploadToS3(sciHubTile.getPreviewFile(), s3Tile.getPreviewFile());

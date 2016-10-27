@@ -1,4 +1,4 @@
-package com.sinergise.sentinel.l1c.product.mapping;
+package com.sinergise.sentinel.l1c.product.mapping.scihub;
 
 import java.io.BufferedOutputStream;
 import java.io.File;

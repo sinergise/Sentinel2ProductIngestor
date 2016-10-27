@@ -4,23 +4,14 @@ import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import com.sinergise.sentinel.l1c.product.L1CProductConstants;
+import com.sinergise.sentinel.l1c.product.mapping.scihub.AbstractSciHubProductTile;
 
 public class S3ProductTile {
 
-	private static final Pattern GRANULE_MGRS_PATTERN = Pattern.compile("^.*_T([0-9]{2})([A-Z])([A-Z]{2}).*$");
-	private static final Pattern BAND_TILE_PATTERN = Pattern
-			.compile("^.*_T([0-9]{2})([A-Z]{3}).*_(B[0-9][A-Z0-9]\\.jp2).*$");
-
-	private static final Pattern QI_REPORT_FILE_PATTERN = Pattern.compile("(.*)_(\\w+_\\w+_report\\.xml)$");
-	private static final Pattern QI_MASK_FILE_PATTERN = Pattern
-			.compile("^.*_(MSK_[A-Z]+).*(_B[0-9][A-Z0-9]).*(\\.gml)$");
-	private static final Pattern AUX_FILE_PATTERN = Pattern.compile("^.*_AUX_([A-Z]+).*$");
 
 	private File baseDirectory;
-
 	private File metadataFile;
 	private File previewFile;
 	private File[] imageFiles;
@@ -28,41 +19,34 @@ public class S3ProductTile {
 	private File[] auxFiles;
 	private File tileInfoFile;
 	
-	private int utmZone;
-	private String latitudeBand;
-	private String gridSquare;
-		
 	private S3ProductDatastrip datastrip;
-	private SciHubProductTile sciHubTile;
+	private AbstractSciHubProductTile sciHubTile;
 	
 	private S3Product s3Product;
 	
-	public S3ProductTile(S3Product s3Product, SciHubProductTile sciHubTile, File s3TilesBase, TileSequenceProvider tileSequenceProvider) {
+	public S3ProductTile(S3Product s3Product, AbstractSciHubProductTile sciHubTile, File s3TilesBase, TileSequenceProvider tileSequenceProvider) {
 		this.s3Product = s3Product;
 		this.sciHubTile = sciHubTile;
 		
-		Matcher m = GRANULE_MGRS_PATTERN.matcher(sciHubTile.getTileName());
-		if (!m.matches()) {
-			throw new IllegalStateException("Tile " + sciHubTile.getMetadataFile() + " is invalid!");
-		}
 
 		datastrip = s3Product.getDatastrip(sciHubTile.getTileMetadata().getDatastripId());
-		
-		utmZone = Integer.parseInt(m.group(1));
-		latitudeBand = m.group(2);
-		gridSquare = m.group(3);
-		
+
 				
 		SimpleDateFormat s3BucketDateFormat = L1CProductConstants.getS3BucketDateFormat();
 		
-		File baseBeforeSequence = new File(s3TilesBase, utmZone + File.separator + latitudeBand + File.separator+ gridSquare + File.separator
-				+ s3BucketDateFormat.format(getSensingTime()));
+		File baseBeforeSequence = new File(s3TilesBase, sciHubTile.getUtmZone() 
+				+ File.separator + sciHubTile.getLatitudeBand() 
+				+ File.separator + sciHubTile.getGridSquare() 
+				+ File.separator + s3BucketDateFormat.format(getSensingTime()));
 		
 		int tileSequence = tileSequenceProvider.getSequence(L1CProductConstants.getS3ObjectName(baseBeforeSequence), sciHubTile.getTileMetadata().getTileId());
 		
 		
-		baseDirectory = new File(s3TilesBase, utmZone + File.separator + latitudeBand + File.separator+ gridSquare + File.separator
-				+ s3BucketDateFormat.format(getSensingTime()) + File.separator + tileSequence);
+		baseDirectory = new File(s3TilesBase, sciHubTile.getUtmZone() 
+				+ File.separator + sciHubTile.getLatitudeBand() 
+				+ File.separator + sciHubTile.getGridSquare() 
+				+ File.separator + s3BucketDateFormat.format(getSensingTime()) 
+				+ File.separator + tileSequence);
 
 		tileInfoFile = new File(baseDirectory, "tileInfo.json");
 		metadataFile = new File(baseDirectory, "metadata.xml");
@@ -71,7 +55,7 @@ public class S3ProductTile {
 		imageFiles = new File[sciHubTile.getImageFiles().length];
 		for (int i = 0; i < imageFiles.length; i++) {
 			File sciHubImageFile = sciHubTile.getImageFiles()[i];
-			Matcher imgMatcher = BAND_TILE_PATTERN.matcher(sciHubImageFile.getName());
+			Matcher imgMatcher = sciHubTile.getJp2BandFilePattern().matcher(sciHubImageFile.getName());
 			if (!imgMatcher.matches()) {
 				throw new IllegalStateException("Unrecognised image file:" + sciHubImageFile.getName());
 			}
@@ -82,8 +66,8 @@ public class S3ProductTile {
 		qiFiles = new File[sciHubTile.getQiFiles().length];
 		for (int i = 0; i < qiFiles.length; i++) {
 			File sciHubQiFile = sciHubTile.getQiFiles()[i];
-			Matcher mReport = QI_REPORT_FILE_PATTERN.matcher(sciHubQiFile.getName());
-			Matcher mMask = QI_MASK_FILE_PATTERN.matcher(sciHubQiFile.getName());
+			Matcher mReport = sciHubTile.getQiReportFilePattern().matcher(sciHubQiFile.getName());
+			Matcher mMask = sciHubTile.getMaskGMLFilePattern().matcher(sciHubQiFile.getName());
 			if (mReport.matches()) {
 				qiFiles[i] = new File(qiFileBase, mReport.group(2));
 			} else if (mMask.matches()) {
@@ -97,7 +81,7 @@ public class S3ProductTile {
 		auxFiles = new File[sciHubTile.getAuxFiles().length];
 		for (int i = 0; i < auxFiles.length; i++) {
 			File auxFile = sciHubTile.getAuxFiles()[i];
-			Matcher mAux = AUX_FILE_PATTERN.matcher(auxFile.getName());
+			Matcher mAux = sciHubTile.getAuxFilePattern().matcher(auxFile.getName());
 			if (!mAux.matches()) {
 				throw new IllegalStateException("Unrecognised AUX file:" + auxFile.getName());
 			}
@@ -106,15 +90,15 @@ public class S3ProductTile {
 	}
 
 	public int getUtmZone() {
-		return utmZone;
+		return sciHubTile.getUtmZone();
 	}
 	
 	public String getLatitudeBand() {
-		return latitudeBand;
+		return sciHubTile.getLatitudeBand();
 	}
 	
 	public String getGridSquare() {
-		return gridSquare;
+		return sciHubTile.getGridSquare();
 	}
 	
 	public Date getSensingTime() {

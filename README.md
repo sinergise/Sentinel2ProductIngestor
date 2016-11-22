@@ -1,5 +1,6 @@
 Sentinel2ProductIngestor
 ================
+[![Join the chat at https://gitter.im/sinergise/Lobby](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/sinergise/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 # About 
 Sentinel2ProductIngestor is used to download earth observation data provided by the http://www.esa.int/Our_Activities/Observing_the_Earth/Copernicus/Sentinel-2 satellites and store it to Amazon S3.

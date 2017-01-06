@@ -87,8 +87,9 @@ public class ProductsIngestorRunner {
 				sciHubCredentials.getUsername(),
 				sciHubCredentials.getPassword());
 
+		String hub = System.getProperty("hub", "apihub");
 		SciHubSearcher shs = new SciHubSearcher(
-				new URL(ingestor.getSettings().getSciHubBaseUrl()+"/apihub/search"), 
+				new URL(ingestor.getSettings().getSciHubBaseUrl()+"/"+hub+"/search"), 
 				hc);
 		
 		while (ingestor.isRunning()) {
@@ -99,7 +100,14 @@ public class ProductsIngestorRunner {
 				logger.info("Executing search between {} and {}!", from, to);
 				OpenSearchResult osr = shs.search(from.toDate(), to.toDate(), null, 0, 100);
 				while (osr != null) {
-					osr.getFeed().getEntries().forEach(e -> ingestor.addEntry(new SciHubEntry(e)));
+					osr.getFeed().getEntries()
+						.forEach(e -> {
+						try {
+							ingestor.addEntry(new SciHubEntry(e));
+						} catch (Exception ex) {
+							logger.error("Failed to add!", ex);
+						}
+						});
 					osr = shs.next(osr);
 				}
 				logger.info("Search done.");
@@ -108,7 +116,7 @@ public class ProductsIngestorRunner {
 				logger.error("Error while searching!",ex);
 			}
 			try {
-				Thread.sleep(2*60*1000);
+				Thread.sleep(20*60*1000);
 			} catch (InterruptedException ex) {}
 		}
 	}

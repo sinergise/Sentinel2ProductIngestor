@@ -25,10 +25,11 @@ public class SciHubEntry {
 	
 	private File archiveFile;
 	
-	private Date productStartTime;
-	private Date productStopTime;
+	private Date productTime;
 	private Date ingestionDate;
-	private static final Pattern NAME_DATES_PATTERN = Pattern.compile("^.*_V([0-9T]{15})_([0-9T]{15})$");
+	private static final Pattern SAFE_NAME_DATES_PATTERN = Pattern.compile("^.*_V([0-9T]{15})_([0-9T]{15})$");
+	private static final Pattern SAFECOMPACT_NAME_DATES_PATTERN = Pattern.compile("^S2[AB]_MSIL1C_([0-9T]{15})_.*$");
+	
 	
 	
 	public SciHubEntry(String id, String name) {
@@ -41,18 +42,25 @@ public class SciHubEntry {
 		this.name = osEntryDto.getTitle();
 		
 		
-		Matcher mDate = NAME_DATES_PATTERN.matcher(name);
-		if (!mDate.matches()) {
+		SimpleDateFormat filenameDateFormat = L1CProductConstants.getFilenameDateFormat();
+		Matcher safeDateMatcher = SAFE_NAME_DATES_PATTERN.matcher(name);
+		Matcher safeCompactDateMatcher = SAFECOMPACT_NAME_DATES_PATTERN.matcher(name);
+		if (safeDateMatcher.matches()) {
+			try {
+				productTime = filenameDateFormat.parse(safeDateMatcher.group(2));
+			} catch (ParseException ex) {
+				throw new IllegalStateException("Can't extract product time from name! ",ex);
+			}
+		} else if (safeCompactDateMatcher.matches()) {
+			try {
+				productTime = filenameDateFormat.parse(safeCompactDateMatcher.group(1));
+			} catch (ParseException ex) {
+				throw new IllegalStateException("Can't extract product time from name! ",ex);
+			}
+		} else { 
 			throw new IllegalStateException("Can't extract product times from name! "+name);
 		}
 		
-		SimpleDateFormat filenameDateFormat = L1CProductConstants.getFilenameDateFormat();
-		try {
-			productStartTime = filenameDateFormat.parse(mDate.group(1));
-			productStopTime = filenameDateFormat.parse(mDate.group(2));
-		} catch (ParseException ex) {
-			throw new IllegalStateException("Can't extract product times from name! ",ex);
-		}
 		
 		for (Link linkDto: osEntryDto.getLinks()) {
 			if (linkDto.getRelation()==null) {
@@ -93,12 +101,8 @@ public class SciHubEntry {
 		return ingestionDate;
 	}
 	
-	public Date getProductStartTime() {
-		return productStartTime;
-	}
-	
-	public Date getProductStopTime() {
-		return productStopTime;
+	public Date getProductTime() {
+		return productTime;
 	}
 
 	@Override

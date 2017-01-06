@@ -13,7 +13,7 @@ import org.w3c.dom.Element;
 import com.sinergise.sentinel.l1c.product.L1CProductConstants;
 
 public abstract class AbstractSciHubProductDatastrip  {
-	private static final Pattern QI_REPORT_FILE_PATTERN = Pattern.compile("(.*)_(\\w+_\\w+_report\\.xml)$");
+	private static final Pattern QI_REPORT_FILE_PATTERN = Pattern.compile(".*_(\\w+_\\w+)_report\\.xml$");
 	
 	private File datastripDirectory;
 	private File metadataFile;

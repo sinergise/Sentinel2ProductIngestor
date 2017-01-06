@@ -87,7 +87,7 @@ public class SciHubSearcher {
 	}
 	
 	private OpenSearchResult search (String requestUrl) throws InterruptedException, ExecutionException, JsonParseException, JsonMappingException, UnsupportedOperationException, IOException {
-		HttpGet request = new HttpGet(requestUrl);			
+		HttpGet request = new HttpGet(requestUrl);
 		Future<HttpResponse> future = httpClient.execute(request, null);
 		HttpResponse response = future.get();
 		if (response.getStatusLine().getStatusCode()!=200) {

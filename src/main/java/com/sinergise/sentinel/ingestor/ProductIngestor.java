@@ -99,7 +99,7 @@ public class ProductIngestor {
 	    s3TransferManager = new TransferManager(s3); //uses separate pool, for multipart zip upload
 	    s3TransferManager.setConfiguration(tmConfig);
 	    
-	    s3UploadExecutorService = new ForkJoinPool(50);
+	    s3UploadExecutorService = new ForkJoinPool(100);
 
 	}
 	
@@ -269,7 +269,7 @@ public class ProductIngestor {
 	}
 
 	public boolean existsInS3(SciHubEntry entry) {
-		String productInfoPath = L1CProductConstants.buildS3ProductInfoPath(settings.getS3ProductPathPrefix(), entry.getProductStopTime(), entry.getName());
+		String productInfoPath = L1CProductConstants.buildS3ProductInfoPath(settings.getS3ProductPathPrefix(), entry.getProductTime(), entry.getName());
 		try {
 			logger.trace("Getting product info {} from s3", productInfoPath);
 			S3Object s3Object = s3.getObject(settings.getS3BucketName(), productInfoPath);

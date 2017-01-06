@@ -27,9 +27,9 @@ public class S3ProductDatastrip {
 			File file = sciHubDatastrip.getQiFiles()[i];
 			Matcher matcher = sciHubDatastrip.getQiReportFilePattern().matcher(file.getName());
 			if (matcher.matches()) {
-				qiFiles[i] = new File(qiBase, matcher.group(2));
+				qiFiles[i] = new File(qiBase, matcher.group(1)+"_report.xml");
 			} else {
-				throw new IllegalStateException("Unexpected QI file " + file.getName() + "!");
+				throw new IllegalStateException("Unexpected QI file " + file.getName() + " in product" + s3ProductBase.getAbsolutePath()+"!");
 			}
 		}
 		auxDir = new File(baseDirectory, "auxData");

@@ -38,7 +38,7 @@ public class SciHubProductConsumer extends AbstractAsyncResponseConsumer<File> {
 	private static final long DOWNLOAD_STUCK_CHECK_MINIMUM_DOWNLOADED_BYTES = 1024*100; // 100kb
 	
 	private final File file;
-	private RandomAccessFile accessfile;
+	private RandomAccessFile accessFile;
 
 	private HttpResponse response;
 	private ContentType contentType;
@@ -83,7 +83,7 @@ public class SciHubProductConsumer extends AbstractAsyncResponseConsumer<File> {
 		if (fileStreamIdx > 0) {
 			getRequest.setHeader("Range", "bytes=" + fileStreamIdx + "-");
 		}
-		this.accessfile = new RandomAccessFile(this.file, "rw");
+		this.accessFile = new RandomAccessFile(this.file, "rw");
 		downloadStartTS = System.currentTimeMillis();
 		downloadedBytesMarkerTs = System.currentTimeMillis();
 		fileFuture = httpClient.execute(HttpAsyncMethods.create(getRequest), this, null);
@@ -114,7 +114,7 @@ public class SciHubProductConsumer extends AbstractAsyncResponseConsumer<File> {
 	protected void onEntityEnclosed(final HttpEntity entity, final ContentType contentType) throws IOException {
 		this.contentType = contentType;
 		this.contentEncoding = entity.getContentEncoding();
-		this.fileChannel = this.accessfile.getChannel();
+		this.fileChannel = this.accessFile.getChannel();
 	}
 
 	@Override
@@ -159,8 +159,12 @@ public class SciHubProductConsumer extends AbstractAsyncResponseConsumer<File> {
 		boolean canceled = fileFuture.cancel(true);
 		cancel();
 		try {
-			fileChannel.close();
-			accessfile.close();
+			if (fileChannel!=null) {
+				fileChannel.close();
+			}
+			if (accessFile!=null) {
+				accessFile.close();
+			}
 		} catch (Exception ex) {
 			logger.error("Failed to close file!", ex);
 		}
@@ -179,7 +183,7 @@ public class SciHubProductConsumer extends AbstractAsyncResponseConsumer<File> {
 	@Override
 	protected void releaseResources() {
 		try {
-			this.accessfile.close();
+			this.accessFile.close();
 		} catch (final IOException ignore) {
 		}
 	}

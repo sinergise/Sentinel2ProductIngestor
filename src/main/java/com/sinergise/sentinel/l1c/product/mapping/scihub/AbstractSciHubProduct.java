@@ -109,7 +109,7 @@ public abstract class AbstractSciHubProduct {
 			datatakeIdentifier = 	(String) xpath.compile(
 					"/Level-1C_User_Product/General_Info/Product_Info/Datatake/@datatakeIdentifier").evaluate(doc, XPathConstants.STRING);
 			NodeList dsIdentifierNodes = (NodeList) xpath.compile(
-					"/Level-1C_User_Product/General_Info/Product_Info/Product_Organisation/Granule_List/Granule/@datastripIdentifier").evaluate(doc, XPathConstants.NODESET);
+					"/Level-1C_User_Product/General_Info/Product_Info/Product_Organisation/Granule_List//@datastripIdentifier").evaluate(doc, XPathConstants.NODESET);
 
 			File datastripsDirectory = new File(productBase, "DATASTRIP");
 			for (int i=0;i<dsIdentifierNodes.getLength();i++) {

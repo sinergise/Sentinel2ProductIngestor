@@ -4,7 +4,6 @@ package com.sinergise.sentinel.l1c.product;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.nio.file.Files;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -113,10 +112,7 @@ public class ProductTransformer extends RecursiveTask<Boolean> {
 				try {
 					logger.trace("Uploading {} to S3!", s3Key);
 					long start = System.currentTimeMillis();
-//					s3.putObject(bucketName, s3Key, from);
-					File target = new File("d:/temp/"+s3Key);
-					new File(target.getParent()).mkdirs();
-					Files.copy(from.toPath(), target.toPath());
+					s3.putObject(bucketName, s3Key, from);
 					double size = from.length()/(1024.0*1024.0);
 					logger.trace("{} uploaded to S3 @ {} mb/s!", s3Key, (size/((System.currentTimeMillis()-start)/1000.0)));
 					return true;
@@ -145,7 +141,6 @@ public class ProductTransformer extends RecursiveTask<Boolean> {
 		try {
 			long ulStartTs = System.currentTimeMillis();
 			logger.info("Uploading {} to Amazon S3 bucket {}", sciHubProduct, bucketName);
-			// transformedProductBase.mkdir();
 			s3ProductBase = L1CProductConstants.createProductBasePath(basePath);
 			s3TilesBase = new File(basePath, "tiles");
 			S3Product s3Product = new S3Product(sciHubProduct, s3ProductBase, s3TilesBase, tileSequenceProvider);

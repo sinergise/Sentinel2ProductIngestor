@@ -5,10 +5,14 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.sinergise.sentinel.l1c.product.mapping.scihub.AbstractSciHubProduct;
+import com.sinergise.sentinel.l1c.product.mapping.scihub.AbstractSciHubProductDatastrip;
 import com.sinergise.sentinel.l1c.product.mapping.scihub.AbstractSciHubProductTile;
 import com.sinergise.sentinel.scihub.SciHubEntry;
 
 public class SciHubProduct extends AbstractSciHubProduct {
+	
+	private static final Pattern QI_REPORT_FILE_PATTERN = Pattern.compile("(\\w+_\\w+)\\.xml$");
+
 	private static final Pattern DATASTRIP_ID_PATTERN = Pattern
 			.compile("^(S2A_OPER_MSI_L1C_)?(.*)(_.*)$");
 
@@ -29,6 +33,18 @@ public class SciHubProduct extends AbstractSciHubProduct {
 	@Override
 	protected AbstractSciHubProductTile createTile(AbstractSciHubProduct sciHubProduct, File tileDir) {
 		return new SciHubProductTile(sciHubProduct, tileDir);
+	}
+
+
+	
+	@Override
+	protected AbstractSciHubProductDatastrip createDatastrip(File datastripDirectory, String datastripId) {
+		return new AbstractSciHubProductDatastrip(datastripDirectory, datastripId) {
+			@Override
+			public Pattern getQiReportFilePattern() {
+				return SciHubProduct.QI_REPORT_FILE_PATTERN;
+			}
+		};
 	}
 
 }

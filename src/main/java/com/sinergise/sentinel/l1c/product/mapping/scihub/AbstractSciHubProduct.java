@@ -74,7 +74,8 @@ public abstract class AbstractSciHubProduct {
 
 			@Override
 			public boolean accept(File pathname) {
-				if (pathname.isDirectory())
+				// broken granule directory error that was never fixed (we've reported it) workarround
+				if (pathname.isDirectory() && !pathname.getName().contains("null")) 
 					return true;
 				return false;
 			}

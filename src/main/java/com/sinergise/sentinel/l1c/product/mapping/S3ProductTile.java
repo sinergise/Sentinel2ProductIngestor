@@ -30,7 +30,9 @@ public class S3ProductTile {
 		
 
 		datastrip = s3Product.getDatastrip(sciHubTile.getTileMetadata().getDatastripId());
-
+		if (datastrip == null) {
+			throw new IllegalArgumentException("Tile "+sciHubTile.getTileName()+ " datastrip_id="+sciHubTile.getTileMetadata().getDatastripId()+" not found!");
+		}
 				
 		SimpleDateFormat s3BucketDateFormat = L1CProductConstants.getS3BucketDateFormat();
 		
@@ -68,10 +70,13 @@ public class S3ProductTile {
 			File sciHubQiFile = sciHubTile.getQiFiles()[i];
 			Matcher mReport = sciHubTile.getQiReportFilePattern().matcher(sciHubQiFile.getName());
 			Matcher mMask = sciHubTile.getMaskGMLFilePattern().matcher(sciHubQiFile.getName());
+			Matcher mXml = sciHubTile.getQiXMLFilePattern().matcher(sciHubQiFile.getName());
 			if (mReport.matches()) {
 				qiFiles[i] = new File(qiFileBase, mReport.group(2));
 			} else if (mMask.matches()) {
 				qiFiles[i] = new File(qiFileBase, mMask.group(1) + mMask.group(2) + mMask.group(3));
+			} else if (mXml.matches()) {
+				qiFiles[i] = new File(qiFileBase, sciHubQiFile.getName());
 			} else {
 				throw new IllegalStateException("Unrecognised QI file:" + sciHubQiFile.getName());
 			}

@@ -219,6 +219,7 @@ public class SciHubProductConsumer extends AbstractAsyncResponseConsumer<File> {
 				fileFuture.get();
 				return false;
 			} catch (Exception ex) {
+				logger.error("Downloading product id {} has failed!", sciHubEntry, ex);
 				return true;
 			}
 		}

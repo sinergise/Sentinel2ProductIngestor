@@ -173,7 +173,7 @@ public class ProductTransformer extends RecursiveTask<Boolean> {
 				}
 			} 
 			logger.error("Error  uploading {} to Amazon S3 bucket {}!", sciHubProduct, bucketName);
-		} catch (IOException ex) {
+		} catch (Exception ex) {
 			logger.error("Error  uploading {} to Amazon S3 bucket {}!", sciHubProduct, bucketName, ex);
 		} finally {
 			if (productInfoFile!=null) {

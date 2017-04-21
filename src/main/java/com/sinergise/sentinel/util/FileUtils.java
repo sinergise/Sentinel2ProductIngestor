@@ -18,6 +18,7 @@ public class FileUtils {
 	private static final Logger logger = LoggerFactory.getLogger(FileUtils.class);
 
 	public static void deleteRecursively(File f) throws IOException {
+		if (f == null || !f.exists()) return;
 		if (f.isDirectory()) {
 			for (File c : f.listFiles())
 				deleteRecursively(c);

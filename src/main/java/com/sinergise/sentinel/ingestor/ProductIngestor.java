@@ -7,6 +7,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -36,10 +37,24 @@ import com.sinergise.sentinel.l1c.product.mapping.TileSequenceProviderAmazonS3;
 import com.sinergise.sentinel.scihub.SciHubEntry;
 
 public class ProductIngestor {
-
+	
+	private static ProductIngestor INSTANCE = null;
+	
+	
 	private static final Logger logger = LoggerFactory.getLogger(ProductIngestor.class);
 	
 	private static final int MAX_CONCURRENT_CONNECTIONS_PER_SCIHUB_ACCOUNT = 2;
+	
+	public static ProductIngestor instance() {
+		if (INSTANCE == null) {
+			try {
+				INSTANCE = new ProductIngestor();
+			} catch (Exception e) {
+				throw new RuntimeException("Couldn't create ingestor!", e);
+			}
+		}
+		return INSTANCE;
+	}
 	
 	// to ingest (ordered)
 	private LinkedList<SciHubEntry> toIngest = new LinkedList<>();
@@ -70,7 +85,7 @@ public class ProductIngestor {
 	
 	private DataDownloader[] downloaders;
 	
-	public ProductIngestor() throws FileNotFoundException, IOException {
+	private ProductIngestor() throws FileNotFoundException, IOException {
 		
 		settings = new ProductIngestorSettings(new File(System.getProperties().getProperty("config")));
 		
@@ -84,6 +99,7 @@ public class ProductIngestor {
 		
 		
 		ClientConfiguration s3ClientConfig = new ClientConfiguration();
+		s3ClientConfig.setMaxConnections(400);
 		s3 = new AmazonS3Client(credentials, s3ClientConfig);
 		Region euCentral = Region.getRegion(Regions.EU_CENTRAL_1);
 	    s3.setRegion(euCentral);
@@ -99,7 +115,7 @@ public class ProductIngestor {
 	    s3TransferManager = new TransferManager(s3); //uses separate pool, for multipart zip upload
 	    s3TransferManager.setConfiguration(tmConfig);
 	    
-	    s3UploadExecutorService = new ForkJoinPool(100);
+	    s3UploadExecutorService = new ForkJoinPool(300);
 
 	}
 	
@@ -134,7 +150,7 @@ public class ProductIngestor {
 				settings.getProductProcessorThreadCount(),
 				settings.getProductProcessorThreadCount(),
 				10, // time to wait before resizing pool
-				TimeUnit.SECONDS, new ArrayBlockingQueue<Runnable>(10, true), new ThreadPoolExecutor.CallerRunsPolicy());
+				TimeUnit.SECONDS, new ArrayBlockingQueue<Runnable>(2, true), new ThreadPoolExecutor.CallerRunsPolicy());
 
 
 		
@@ -242,13 +258,20 @@ public class ProductIngestor {
 	}
 	
 	
-	private void downloadEntry(SciHubEntry entry) {
+	private void downloadEntry(SciHubEntry entry, boolean priority) {
 		synchronized (this) {
-			toDownload.add(entry);
+			if (priority) {
+				toDownload.addFirst(entry);
+			} else {
+				toDownload.add(entry);
+			}
 		}
 	}
-	
 	public boolean addEntry(SciHubEntry entry) {
+		return addEntry(entry, false);
+	}
+	
+	public boolean addEntry(SciHubEntry entry, boolean  priority) {
 		synchronized (this) {
 			if (ingested.contains(entry) || toIngest.contains(entry) || toDownload.contains(entry) ||
 				downloading.contains(entry)	|| ingesting.contains(entry)) {
@@ -263,7 +286,7 @@ public class ProductIngestor {
 			return false;
 		}
 		//TODO check if there's a downloaded file and it's CRC is ok
-		downloadEntry(entry);
+		downloadEntry(entry, priority);
 		logger.info("Entry {} added for ingestion!", entry);
 		return true;
 	}
@@ -284,4 +307,20 @@ public class ProductIngestor {
 		
 	}
 
+
+	public Collection<SciHubEntry> getToIngest() {
+		return toIngest;
+	}
+
+	public Collection<SciHubEntry> getIngesting() {
+		return ingesting;
+	}
+
+	public Collection<SciHubEntry> getDownloading() {
+		return downloading;
+	}
+
+	public Collection<SciHubEntry> getToDownload() {
+		return toDownload;
+	}
 }

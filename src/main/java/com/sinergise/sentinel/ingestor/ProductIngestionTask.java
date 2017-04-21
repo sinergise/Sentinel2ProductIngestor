@@ -59,47 +59,53 @@ public class ProductIngestionTask implements Runnable {
 			ingestor.redownload(entry);
 			return;
 		}
-		
-	   	ProductTransformer ul = new ProductTransformer(
-	   				SciHubProductFactory.loadProduct(unpackedArchive, entry),
-	   				piSettings.getS3ProductPathPrefix(),
-	   				ingestor.getS3Client(),
-	   				piSettings.getS3BucketName(),
-	   				ingestor.getTileSequenceProvider());
-	   	
-	   	if (ingestor.getS3UploadExecutorService().invoke(ul)) {
-	   		if (ingestor.getSettings().getNewProductSNSArn() != null) {
-	   			try {
-			   		ProductInfo productInfo = ul.getProductInfo();		   		
-			   		logger.info("Notifying SNS about new product {}", productInfo.getName());
-					PublishRequest snsPublishRequest = new PublishRequest(
-							ingestor.getSettings().getNewProductSNSArn(), 
-							ul.getObjectMapper().writeValueAsString(productInfo),
-							productInfo.getName());
-					ingestor.getSNSClient().publish(snsPublishRequest);
-	   			} catch (Exception ex) { 
-	   				logger.error("Failed to send newProduct SNS notification!",ex);
-	   			}
-	   		}
 
-	   		removeDirectorySilently(unpackedArchive);
-	   		
-	   		for (int i=0;i<50;i++) { // try 50 times then give up
-	   			logger.info("Uploading zip archive file {} take #{}",entry.getName(), i);
-		   		Upload upload = ingestor.getS3TransferManager()
-		   				.upload(piSettings.getS3ZipBucketName(), entry.getName()+".zip", archiveFile);
-		   		try {
-		        	upload.waitForCompletion();
-		        	ingestor.sciHubEntryIngested(entry);
-		        	logger.info("Done uploading zip archive file {}", entry.getName());
-				   	return;
-		        } catch (AmazonClientException | InterruptedException ex) {
-		        	logger.error("Failed to upload zip archive file {}", entry.getName(), ex);
-		        }			   		
-	   		}
-	   		logger.error("Failed to upload zip archive {} too many times. Giving up..", entry.getName());
-	   		return;
-	   	}
-		logger.error("Failed to ingesting product {} ", entry);
+		try {
+		   	ProductTransformer ul = new ProductTransformer(
+		   				SciHubProductFactory.loadProduct(unpackedArchive, entry),
+		   				piSettings.getS3ProductPathPrefix(),
+		   				ingestor.getS3Client(),
+		   				piSettings.getS3BucketName(),
+		   				ingestor.getTileSequenceProvider());
+		   	
+		   	if (ingestor.getS3UploadExecutorService().invoke(ul)) {
+		   		if (ingestor.getSettings().getNewProductSNSArn() != null) {
+		   			try {
+				   		ProductInfo productInfo = ul.getProductInfo();		   		
+				   		logger.info("Notifying SNS about new product {}", productInfo.getName());
+						PublishRequest snsPublishRequest = new PublishRequest(
+								ingestor.getSettings().getNewProductSNSArn(), 
+								ul.getObjectMapper().writeValueAsString(productInfo),
+								productInfo.getName());
+						ingestor.getSNSClient().publish(snsPublishRequest);
+		   			} catch (Exception ex) { 
+		   				logger.error("Failed to send newProduct SNS notification!",ex);
+		   			}
+		   		}
+	
+		   		removeDirectorySilently(unpackedArchive);
+		   		
+		   		for (int i=0;i<50;i++) { // try 50 times then give up
+		   			logger.info("Uploading zip archive file {} take #{}",entry.getName(), i);
+			   		Upload upload = ingestor.getS3TransferManager()
+			   				.upload(piSettings.getS3ZipBucketName(), entry.getName()+".zip", archiveFile);
+			   		try {
+			        	upload.waitForCompletion();
+			        	ingestor.sciHubEntryIngested(entry);
+			        	logger.info("Done uploading zip archive file {}", entry.getName());
+					   	return;
+			        } catch (AmazonClientException | InterruptedException ex) {
+			        	logger.error("Failed to upload zip archive file {}", entry.getName(), ex);
+			        }			   		
+		   		}
+		   		logger.error("Failed to upload zip archive {} too many times. Giving up..", entry.getName());
+		   		return;
+		   	}
+			logger.error("Failed to ingest product {}.", entry);
+		} catch (Exception ex) {
+			logger.error("Failed to ingest product {}.", entry, ex);			
+		} finally {
+			removeDirectorySilently(unpackedArchive);
+		}
 	}
 }

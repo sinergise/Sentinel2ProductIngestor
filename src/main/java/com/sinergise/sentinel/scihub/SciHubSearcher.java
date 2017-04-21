@@ -91,6 +91,7 @@ public class SciHubSearcher {
 		Future<HttpResponse> future = httpClient.execute(request, null);
 		HttpResponse response = future.get();
 		if (response.getStatusLine().getStatusCode()!=200) {
+			logger.error("Request: {} status code: {}", requestUrl, response.getStatusLine().getStatusCode());
 			throw new ClientProtocolException(response.getStatusLine().getReasonPhrase());
 		}
 		return  mapper.readValue(response.getEntity().getContent(), OpenSearchResult.class);

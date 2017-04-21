@@ -28,6 +28,7 @@ public abstract class AbstractSciHubProductTile {
 	
 	private static final String DETECTOR_FOOTPRINT_QI_FILE_KEYWORD = "DETFOO";
 	private static final Pattern GRANULE_MGRS_PATTERN = Pattern.compile("^.*_T([0-9]{2})([A-Z])([A-Z]{2}).*$");
+	private static final Pattern QI_XML_FILE_PATTERN = Pattern.compile("^([A-Za-z0-9]+)_([A-Za-z0-9]+).xml$");
 	
 	private File productTileDir;
 	private File metadataXml;
@@ -63,7 +64,7 @@ public abstract class AbstractSciHubProductTile {
 		
 		File[] metadataFiles = productTileDir.listFiles(FileSuffixFilter.xml());
 		if (metadataFiles.length != 1) {
-			throw new IllegalStateException("More than 1 metadata file found!");
+			throw new IllegalStateException("Illegal metadata file count: " + metadataFiles.length);
 		}
 		metadataXml = metadataFiles[0];
 		try (InputStream is = new FileInputStream(metadataXml)) {
@@ -195,4 +196,7 @@ public abstract class AbstractSciHubProductTile {
 	public abstract Pattern getQiReportFilePattern();
 	public abstract Pattern getMaskGMLFilePattern();
 	public abstract Pattern getAuxFilePattern();
+	public Pattern getQiXMLFilePattern() {
+		return QI_XML_FILE_PATTERN;
+	}
 }

@@ -15,6 +15,11 @@ import org.apache.http.client.config.RequestConfig;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.nio.client.CloseableHttpAsyncClient;
 import org.apache.http.impl.nio.client.HttpAsyncClients;
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.servlet.ServletContextHandler;
+import org.eclipse.jetty.servlet.ServletHolder;
+import org.glassfish.jersey.server.ResourceConfig;
+import org.glassfish.jersey.servlet.ServletContainer;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,6 +27,8 @@ import org.slf4j.LoggerFactory;
 import com.amazonaws.services.s3.internal.Mimetypes;
 import com.sinergise.sentinel.ingestor.ProductIngestor;
 import com.sinergise.sentinel.ingestor.ProductIngestorSettings.SciHubCredentials;
+import com.sinergise.sentinel.ingestor.resource.StatusResource;
+import com.sinergise.sentinel.ingestor.resource.WebApp;
 import com.sinergise.sentinel.scihub.SciHubEntry;
 import com.sinergise.sentinel.scihub.SciHubSearcher;
 import com.sinergise.sentinel.scihub.opensearch.OpenSearchResult;
@@ -30,7 +37,7 @@ import net.sf.sevenzipjbinding.SevenZip;
 
 public class ProductsIngestorRunner {
 	public static final Logger logger = LoggerFactory.getLogger(ProductsIngestorRunner.class);
-	
+
 	
 	private static void loadMimeTypes() throws IOException {	
 		try (InputStream is = ProductsIngestorRunner.class.getResourceAsStream("/mime.types")) {
@@ -40,6 +47,8 @@ public class ProductsIngestorRunner {
 			throw new RuntimeException("Failed to load mime.types!", ex);
 		}
 	}
+	
+	
 	
 	public static void main(String[] args) throws Exception {
 		loadMimeTypes();
@@ -59,17 +68,7 @@ public class ProductsIngestorRunner {
 
 		
 		SevenZip.initSevenZipFromPlatformJAR();
-
-		final ProductIngestor ingestor = new ProductIngestor();
-		
-		Runtime.getRuntime().addShutdownHook(new Thread() {
-		    public void run() { 
-		    	logger.info("Shutting down!");
-		    	System.out.println("Shutting down..");
-		    	ingestor.shutdown();
-		     }
-		 });
-
+		final ProductIngestor ingestor = ProductIngestor.instance();
 		
 		SciHubCredentials sciHubCredentials = 
 					ingestor.getSettings().getSciHubCredentialsList()
@@ -78,8 +77,6 @@ public class ProductsIngestorRunner {
 			throw new RuntimeException("Could not find any SciHubCredentials to work with!");
 		}
 
-		// start ingestor
-		ingestor.start();
 
 		
 		CloseableHttpAsyncClient hc = initializeHttpClient(
@@ -91,7 +88,28 @@ public class ProductsIngestorRunner {
 		SciHubSearcher shs = new SciHubSearcher(
 				new URL(ingestor.getSettings().getSciHubBaseUrl()+"/"+hub+"/search"), 
 				hc);
+		StatusResource.shs = shs;
 		
+		ResourceConfig config = ResourceConfig.forApplicationClass(WebApp.class);
+		ServletHolder servlet = new ServletHolder(new ServletContainer(config));
+		final Server server = new Server(6666);
+		ServletContextHandler context = new ServletContextHandler(server, "/*");
+		context.addServlet(servlet, "/*");
+		server.start();
+		server.dumpStdErr();
+		
+		Runtime.getRuntime().addShutdownHook(new Thread() {
+		    public void run() { 
+		    	logger.info("Shutting down!");
+		    	System.out.println("Shutting down..");
+		    	ingestor.shutdown();
+		    	server.destroy();
+		     }
+		 });
+
+		
+		// start ingestor
+		ingestor.start();
 		while (ingestor.isRunning()) {
 			try {
 				DateTime from = fixedFromDate != null ? fixedFromDate : new DateTime().withTimeAtStartOfDay().minusDays(5);
@@ -130,6 +148,7 @@ public class ProductsIngestorRunner {
                 .setSocketTimeout(20000)
                 .setConnectTimeout(20000)
                 .setConnectionRequestTimeout(20000)
+                .setCookieSpec("easy")
                 .build();
 		CloseableHttpAsyncClient httpClient = HttpAsyncClients.custom().setDefaultCredentialsProvider(credsProvider)
 				.setDefaultRequestConfig(requestConfig)

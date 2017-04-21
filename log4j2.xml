@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="info" packages="com.sinergise.java.util.logging.log4j">
+  <Appenders>
+    <Console name="Console" target="SYSTEM_OUT">
+       <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
+    </Console>
+  </Appenders>
+  
+  <Loggers>
+  	<logger name="com.sinergise" level="trace"/>  	  
+    <Root level="trace">
+      <AppenderRef ref="Console"/> 
+    </Root>
+  </Loggers>
+</Configuration>

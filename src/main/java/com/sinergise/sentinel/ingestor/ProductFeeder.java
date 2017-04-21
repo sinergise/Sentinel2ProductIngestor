@@ -20,6 +20,7 @@ public class ProductFeeder implements Runnable {
 
 	private void cleanupLocalStorage() {
 		try {
+			logger.trace("Cleaning up local storage!");
 			ProductIngestorSettings piSettings = ingestor.getSettings();
 			long totalSize = FileUtils.getDirectorySize(piSettings.getLocalProductsStorage());
 			if (totalSize > piSettings.getLocalProductStorageCleanupSizeThreshold()) {
@@ -31,6 +32,8 @@ public class ProductFeeder implements Runnable {
 		} catch (IOException ex) {
 			logger.error("Failed to cleanup local product storage.", ex);
 			System.exit(1);
+		} finally {
+			logger.trace("Done cleaning up local storage!");
 		}
 	}
 
@@ -40,6 +43,7 @@ public class ProductFeeder implements Runnable {
 			cleanupLocalStorage();
 			SciHubEntry entry = ingestor.getSciHubEntryToIngest();
 			if (entry != null) {
+				logger.info("Queueing {} for ingestion.", entry.getName());
 				ingestor.getProductIngestionTaskExecutor().execute(new ProductIngestionTask(ingestor, entry));
 			} else {
 				synchronized (this) {
@@ -51,5 +55,6 @@ public class ProductFeeder implements Runnable {
 				}
 			}
 		}
+		logger.info("Shutdown.");
 	}
 }
